@@ -30,8 +30,13 @@ class DailyPainReport(models.Model):
 class DailySleepReport(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateField()
-    sleep_duration = models.IntegerField()  # in hours
-    sleep_quality = models.CharField(max_length=50)  # e.g., 'Good', 'Fair', 'Poor'
+    sleep_level = models.IntegerField()  # 0-10, nível geral informado na tela de sono
+    sleep_duration = models.IntegerField(null=True, blank=True)  # in hours
+    sleep_quality = models.CharField(max_length=50, null=True, blank=True)  # e.g., 'Good', 'Fair', 'Poor'
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
 
     def __str__(self):
         return f'{self.user.username} - {self.date}'
@@ -42,6 +47,10 @@ class DailySwellingReport(models.Model):
     date = models.DateField()
     swelling_level = models.IntegerField()  # 0-10
     swelling_location = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
 
     def __str__(self):
         return f'{self.user.username} - {self.date}'
@@ -51,7 +60,11 @@ class DailyFatigueReport(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateField()
     fatigue_level = models.IntegerField()  # 0-10
-    fatigue_description = models.TextField()
+    fatigue_description = models.TextField(blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
 
     def __str__(self):
         return f'{self.user.username} - {self.date}'
