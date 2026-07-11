@@ -30,7 +30,7 @@ class DailyPainReport(models.Model):
 class DailySleepReport(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateField()
-    sleep_level = models.IntegerField()  # 0-10, nível geral informado na tela de sono
+    sleep_level = models.IntegerField()  # 0-10
     sleep_duration = models.IntegerField(null=True, blank=True)  # in hours
     sleep_quality = models.CharField(max_length=50, null=True, blank=True)  # e.g., 'Good', 'Fair', 'Poor'
     created_at = models.DateTimeField(auto_now_add=True)
