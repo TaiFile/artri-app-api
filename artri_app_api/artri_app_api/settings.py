@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-h#f@r1mjgbf2w*$x*r(2^f$g934jkds6@!_%6^!1%6-00px^&c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 AUTH_USER_MODEL = 'authentication.User'
 
@@ -49,7 +49,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', 
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -61,21 +61,17 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "artri_app_api.urls"
 
-REST_FRAMEWORK = { 
+REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )             
+    )
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-
-
-STATIC_URL = '/static/'
-#STATICFILES_DIRS = [os.path.join(BASE_DIR + "files/", 'static')]
-VENV_PATH = os.path.dirname(BASE_DIR)
-STATIC_ROOT = os.path.join(VENV_PATH, 'static_root')
+STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 TEMPLATES = [
 {
@@ -99,14 +95,6 @@ WSGI_APPLICATION = "artri_app_api.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
-#
-
 DATABASES = {
     "default": dj_database_url.config(
         default=config("DATABASE_URL", default="postgres://artriapp:artriapp@artriapp-db-development:5432/artriapp"),
@@ -114,7 +102,7 @@ DATABASES = {
         conn_max_age=0,
     )
 }
-ALLOWED_HOSTS = ["*"]
+
 CACHES = {
     "default": {
         "BACKEND": "django_prometheus.cache.backends.redis.RedisCache",
@@ -156,11 +144,6 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-STATIC_URL = "static/"
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -169,8 +152,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOW_ALL_ORIGINS = True
 
 #CORS_ALLOWED_ORIGINS = [
-#    "http://localhost:3000",          
-#    "http://200.136.215.174",         
+#    "http://localhost:3000",
+#    "http://200.136.215.174",
 #    # "https://dominio-real.com"
 #]
 
@@ -178,16 +161,3 @@ try:
     from .local_settings import *
 except ImportError:
     pass
-
-
-ALLOWED_HOSTS = ['*']
-
-STATIC_URL = 'static/'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-import os
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')

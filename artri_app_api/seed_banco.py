@@ -12,11 +12,8 @@ from django.utils import timezone
 
 from src.models import DailyPainReport, Exercise, Training, TrainingExercise, User
 
-# Locais de dor exibidos no seletor de membros do corpo no app.
-PAIN_LOCATIONS = ['Mãos', 'Braço', 'Ombro', 'Coluna', 'Quadril', 'Joelho', 'Tornozelo', 'Pés']
-
 # Mapeamento para todas as possíveis variações que você pode digitar na planilha
-diff_map = {
+DIFFICULTY_MAP = {
     'FÁCIL': 'Easy', 'FACIL': 'Easy', 'INICIANTE': 'Easy',
     'MÉDIO': 'Medium', 'MEDIO': 'Medium', 'INTERMEDIÁRIO': 'Medium', 'INTERMEDIARIO': 'Medium',
     'DIFÍCIL': 'Hard', 'DIFICIL': 'Hard', 'AVANÇADO': 'Hard', 'AVANCADO': 'Hard'
@@ -24,7 +21,7 @@ diff_map = {
 
 # Mapeia a última parte do nome do Treino (ex.: "EXERCÍCIO PERSONALIDADO - INICIANTE - PERNAS")
 # para a category usada no fluxo de exercícios personalizados.
-category_map = {
+CATEGORY_MAP = {
     'AQUECIMENTO': 'warmup',
     'BRAÇOS': 'arms', 'BRACOS': 'arms',
     'PERNAS': 'legs',
@@ -42,8 +39,8 @@ def derive_category(treino_name, ex_name):
         return None
 
     part = treino.split(' - ')[-1].strip()
-    if part in category_map:
-        return category_map[part]
+    if part in CATEGORY_MAP:
+        return CATEGORY_MAP[part]
 
     if part == 'MOBILIDADE':
         name = ex_name.lower()
@@ -55,6 +52,7 @@ def derive_category(treino_name, ex_name):
 
     return None
 
+
 def reset_and_seed(csv_path):
     print("⚠️  ATENÇÃO: Apagando todos os Treinos e Exercícios antigos do banco...")
     Training.objects.all().delete()
@@ -63,35 +61,35 @@ def reset_and_seed(csv_path):
     print("✅ Banco limpo com sucesso!\n")
 
     print(f"📖 Lendo o arquivo {csv_path} e recriando os dados...")
-    
+
     # Dicionário para controlar a ordem dos exercícios dentro de cada treino
     training_order = {}
     exercicios_processados = 0
-    
+
     with open(csv_path, mode='r', encoding='utf-8-sig') as file:
         reader = csv.DictReader(file)
         # Limpa os cabeçalhos para evitar erros com espaços invisíveis
         reader.fieldnames = [str(field).strip() for field in reader.fieldnames if field]
-        
+
         for row in reader:
             clean_row = {str(k).strip(): str(v).strip() for k, v in row.items() if k is not None}
-            
+
             ex_name = clean_row.get('Nome do exercício')
             if not ex_name:
-                continue # Pula linhas vazias
-                
+                continue  # Pula linhas vazias
+
             sets = clean_row.get('Séries e Repetições', '')
             rest = clean_row.get('Descanso', '')
             obs = clean_row.get('Instruções/Observações', '')
             link = clean_row.get('Link do vídeo', '')
             diff_pt = clean_row.get('Dificuldade', 'Fácil').upper()
             treino_name = clean_row.get('Treino', 'Treino Geral')
-            
+
             # Limpa links incorretos copiados do Excel
             if 'Mesmo' in link or 'Mesmo' in obs:
                 link = ''
-                
-            db_diff = diff_map.get(diff_pt, 'Easy')
+
+            db_diff = DIFFICULTY_MAP.get(diff_pt, 'Easy')
             category = derive_category(treino_name, ex_name)
 
             # 1. Cria o Exercício (usamos get_or_create para não duplicar no banco
@@ -110,7 +108,7 @@ def reset_and_seed(csv_path):
                 }
             )
             exercicios_processados += 1
-            
+
             # 2. Cria ou pega o Treino
             training, _ = Training.objects.get_or_create(
                 name=treino_name,
@@ -119,18 +117,18 @@ def reset_and_seed(csv_path):
                     'description': f'Exercícios focados em: {treino_name.title()}'
                 }
             )
-            
+
             # 3. Inicializa o contador de ordem para este treino (se for a primeira vez)
             if treino_name not in training_order:
                 training_order[treino_name] = 0
-                
+
             # 4. Vincula o Exercício ao Treino mantendo a ordem exata da planilha (0, 1, 2...)
             TrainingExercise.objects.create(
                 training=training,
                 exercise=exercise,
                 order=training_order[treino_name]
             )
-            
+
             training_order[treino_name] += 1
 
     print("\n🎉 Sucesso! Processo concluído.")
@@ -141,13 +139,11 @@ def reset_and_seed(csv_path):
 
 
 def seed_daily_pain_reports(username):
-    """Popula um histórico de dor de exemplo (últimos dias) para o usuário indicado."""
     user = User.objects.get(username=username)
 
     print(f"\n🩹 Recriando histórico de dor de exemplo para '{username}'...")
     DailyPainReport.objects.filter(user=user).delete()
 
-    # (dias atrás, local, intensidade 0-10)
     sample_entries = [
         (6, 'Joelho', 6),
         (5, 'Ombro', 4),
@@ -167,8 +163,6 @@ def seed_daily_pain_reports(username):
             pain_level=level,
             pain_location=location,
         )
-        # auto_now_add sempre grava o instante do create(); ajustamos depois
-        # via update() pra simular um histórico espalhado nos últimos dias.
         DailyPainReport.objects.filter(pk=report.pk).update(created_at=moment)
 
     print(f"✅ {len(sample_entries)} registros de dor criados para '{username}'.")
