@@ -139,7 +139,12 @@ def reset_and_seed(csv_path):
 
 
 def seed_daily_pain_reports(username):
-    user = User.objects.get(username=username)
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        print(f"\n⚠️  Usuário '{username}' não encontrado; "
+              f"pulando o histórico de dor de exemplo.")
+        return
 
     print(f"\n🩹 Recriando histórico de dor de exemplo para '{username}'...")
     DailyPainReport.objects.filter(user=user).delete()
