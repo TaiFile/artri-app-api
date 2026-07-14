@@ -15,10 +15,10 @@ class CustomUserAdmin(UserAdmin):
 # Configuração para o model remedy
 class RemedyAdmin(admin.ModelAdmin):
     # Campos exibidos na lista de remédios
-    list_display = ("name", "user", "hour", "days_of_week", "quantity")
-    
+    list_display = ("name", "user", "hour", "quantity")
+
     # Filtros laterais
-    list_filter = ("days_of_week", "user")
+    list_filter = ("user",)
     
     # Campos de busca
     search_fields = ("name", "description")

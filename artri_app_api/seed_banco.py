@@ -10,7 +10,7 @@ django.setup()
 
 from django.utils import timezone
 
-from src.models import DailyPainReport, Exercise, Training, TrainingExercise, User
+from src.models import DailyPainReport, Exercise, Remedy, Training, TrainingExercise, User
 
 # Mapeamento para todas as possíveis variações que você pode digitar na planilha
 DIFFICULTY_MAP = {
@@ -173,7 +173,38 @@ def seed_daily_pain_reports(username):
     print(f"✅ {len(sample_entries)} registros de dor criados para '{username}'.")
 
 
+def seed_remedies(username):
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        print(f"\n⚠️  Usuário '{username}' não encontrado; "
+              f"pulando os medicamentos de exemplo.")
+        return
+
+    print(f"\n💊 Recriando medicamentos de exemplo para '{username}'...")
+    Remedy.objects.filter(user=user).delete()
+
+    # Mesmos medicamentos que estavam mockados no front (RemedyViewModel)
+    sample_remedies = [
+        ('Metotrexato', 'Tomar após o café da manhã.', 15, '08:00'),
+        ('Ácido Fólico', 'Uso semanal conforme orientação médica.', 5, '08:00'),
+        ('Prednisona', 'Tomar após o almoço.', 5, '12:00'),
+    ]
+
+    for name, description, quantity, hour in sample_remedies:
+        Remedy.objects.create(
+            user=user,
+            name=name,
+            description=description,
+            quantity=quantity,
+            hour=hour,
+        )
+
+    print(f"✅ {len(sample_remedies)} medicamentos criados para '{username}'.")
+
+
 if __name__ == '__main__':
     # Coloque o nome exato do seu arquivo CSV atual
     reset_and_seed('Exercícios ArtriApp - Exercícios ArtriApp - Exercícios.csv')
     seed_daily_pain_reports('taichi1')
+    seed_remedies('taichi1')

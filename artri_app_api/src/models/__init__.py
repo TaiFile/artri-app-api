@@ -1,4 +1,4 @@
-from .common import DAYS_OF_WEEK, DIFFICULTY
+from .common import DIFFICULTY
 from .accounts import User
 from .remedies import Remedy
 from .exercises import CATEGORY, Exercise, TrainingExercise, Training
@@ -11,7 +11,6 @@ from .reports import (
 )
 
 __all__ = [
-    'DAYS_OF_WEEK',
     'DIFFICULTY',
     'User',
     'Remedy',
