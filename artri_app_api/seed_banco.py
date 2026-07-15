@@ -1,5 +1,6 @@
 import csv
 import os
+import sys
 from datetime import timedelta
 
 import django
@@ -10,7 +11,17 @@ django.setup()
 
 from django.utils import timezone
 
-from src.models import DailyPainReport, Exercise, Remedy, Training, TrainingExercise, User
+from src.models import (
+    DailyFatigueReport,
+    DailyPainReport,
+    DailySleepReport,
+    DailySwellingReport,
+    Exercise,
+    Remedy,
+    Training,
+    TrainingExercise,
+    User,
+)
 
 # Mapeamento para todas as possíveis variações que você pode digitar na planilha
 DIFFICULTY_MAP = {
@@ -138,39 +149,84 @@ def reset_and_seed(csv_path):
         print(f"   - {t_name}: {count} exercícios vinculados ordenadamente.")
 
 
-def seed_daily_pain_reports(username):
+def seed_daily_reports(username):
+    """Recria 7 dias de registros de exemplo das 4 métricas do diário
+    (dor, fadiga, sono e inchaço) para popular a página de Evolução."""
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
         print(f"\n⚠️  Usuário '{username}' não encontrado; "
-              f"pulando o histórico de dor de exemplo.")
+              f"pulando os registros de diário de exemplo.")
         return
 
-    print(f"\n🩹 Recriando histórico de dor de exemplo para '{username}'...")
+    print(f"\n🩹 Recriando registros de diário de exemplo para '{username}'...")
     DailyPainReport.objects.filter(user=user).delete()
+    DailyFatigueReport.objects.filter(user=user).delete()
+    DailySleepReport.objects.filter(user=user).delete()
+    DailySwellingReport.objects.filter(user=user).delete()
 
-    sample_entries = [
-        (6, 'Joelho', 6),
-        (5, 'Ombro', 4),
-        (4, 'Coluna', 7),
-        (3, 'Joelho', 5),
-        (2, 'Tornozelo', 3),
-        (1, 'Ombro', 6),
-        (0, 'Coluna', 8),
+    pain_entries = [
+        (6, [('Joelho', 6)]),
+        (5, [('Ombro', 4), ('Joelho', 7)]),
+        (4, [('Coluna', 7)]),
+        (3, [('Joelho', 5), ('Tornozelo', 2)]),
+        (2, [('Tornozelo', 3)]),
+        (1, [('Ombro', 6)]),
+        (0, [('Coluna', 8)]),
     ]
+    swelling_entries = [
+        (6, [('Mãos', 5)]),
+        (5, [('Joelho', 3)]),
+        (4, [('Mãos', 6), ('Tornozelo', 3)]),
+        (3, [('Tornozelo', 4)]),
+        (2, [('Joelho', 2)]),
+        (1, [('Mãos', 5)]),
+        (0, [('Tornozelo', 6)]),
+    ]
+    fatigue_levels = [(6, 7), (5, 5), (4, 8), (3, 6), (2, 4), (1, 5), (0, 7)]
+    sleep_levels = [(6, 4), (5, 6), (4, 3), (3, 5), (2, 7), (1, 6), (0, 8)]
 
-    now = timezone.now()
-    for days_ago, location, level in sample_entries:
-        moment = now - timedelta(days=days_ago)
-        report = DailyPainReport.objects.create(
+    today = timezone.now().date()
+    total = 0
+
+    for days_ago, locations in pain_entries:
+        for location, level in locations:
+            DailyPainReport.objects.create(
+                user=user,
+                date=today - timedelta(days=days_ago),
+                pain_level=level,
+                pain_location=location,
+            )
+            total += 1
+
+    for days_ago, locations in swelling_entries:
+        for location, level in locations:
+            DailySwellingReport.objects.create(
+                user=user,
+                date=today - timedelta(days=days_ago),
+                swelling_level=level,
+                swelling_location=location,
+            )
+            total += 1
+
+    for days_ago, level in fatigue_levels:
+        DailyFatigueReport.objects.create(
             user=user,
-            date=moment.date(),
-            pain_level=level,
-            pain_location=location,
+            date=today - timedelta(days=days_ago),
+            fatigue_level=level,
         )
-        DailyPainReport.objects.filter(pk=report.pk).update(created_at=moment)
+        total += 1
 
-    print(f"✅ {len(sample_entries)} registros de dor criados para '{username}'.")
+    for days_ago, level in sleep_levels:
+        DailySleepReport.objects.create(
+            user=user,
+            date=today - timedelta(days=days_ago),
+            sleep_level=level,
+        )
+        total += 1
+
+    print(f"✅ {total} registros de diário criados para '{username}' "
+          f"(dor, fadiga, sono e inchaço nos últimos 7 dias).")
 
 
 def seed_remedies(username):
@@ -206,5 +262,11 @@ def seed_remedies(username):
 if __name__ == '__main__':
     # Coloque o nome exato do seu arquivo CSV atual
     reset_and_seed('Exercícios ArtriApp - Exercícios ArtriApp - Exercícios.csv')
-    seed_daily_pain_reports('taichi1')
-    seed_remedies('taichi1')
+
+    if len(sys.argv) > 1:
+        username = sys.argv[1]
+        seed_daily_reports(username)
+        seed_remedies(username)
+    else:
+        print("\nℹ️  Dados de exemplo não criados (para criá-los: "
+              "python seed_banco.py <username>).")
