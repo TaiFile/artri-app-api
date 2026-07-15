@@ -1,16 +1,9 @@
 from .repositories import (
-    TrainingReportRepository,
     DailyPainReportRepository,
     DailySleepReportRepository,
     DailySwellingReportRepository,
     DailyFatigueReportRepository,
 )
-
-
-class TrainingReportService:
-    @staticmethod
-    def list_for_user(user):
-        return TrainingReportRepository.list_for_user(user)
 
 
 class DailyPainReportService:

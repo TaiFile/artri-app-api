@@ -1,24 +1,17 @@
 from src.common.generics import UserScopedListCreateView
 
 from .serializers import (
-    TrainingReportSerializer,
     DailyPainReportSerializer,
     DailySleepReportSerializer,
     DailySwellingReportSerializer,
     DailyFatigueReportSerializer,
 )
 from .services import (
-    TrainingReportService,
     DailyPainReportService,
     DailySleepReportService,
     DailySwellingReportService,
     DailyFatigueReportService,
 )
-
-
-class TrainingReportListCreateView(UserScopedListCreateView):
-    serializer_class = TrainingReportSerializer
-    service = TrainingReportService
 
 
 class DailyPainReportListCreateView(UserScopedListCreateView):

@@ -1,16 +1,9 @@
 from src.models import (
-    TrainingReport,
     DailyPainReport,
     DailySleepReport,
     DailySwellingReport,
     DailyFatigueReport,
 )
-
-
-class TrainingReportRepository:
-    @staticmethod
-    def list_for_user(user):
-        return TrainingReport.objects.filter(user=user)
 
 
 class DailyPainReportRepository:

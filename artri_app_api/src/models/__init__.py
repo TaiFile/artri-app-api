@@ -3,7 +3,6 @@ from .accounts import User
 from .remedies import Remedy
 from .exercises import CATEGORY, Exercise, TrainingExercise, Training
 from .reports import (
-    TrainingReport,
     DailyPainReport,
     DailySleepReport,
     DailySwellingReport,
@@ -18,7 +17,6 @@ __all__ = [
     'Exercise',
     'TrainingExercise',
     'Training',
-    'TrainingReport',
     'DailyPainReport',
     'DailySleepReport',
     'DailySwellingReport',
