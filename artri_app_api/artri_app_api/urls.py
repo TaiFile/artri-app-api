@@ -27,12 +27,10 @@ from rest_framework_simplejwt.views import (
 
 schema_view = get_schema_view(
    openapi.Info(
-      title="Snippets API",
+      title="ArtriApp API",
       default_version='v1',
-      description="Test description",
-      terms_of_service="https://www.google.com/policies/terms/",
-      contact=openapi.Contact(email="contact@snippets.local"),
-      license=openapi.License(name="BSD License"),
+      description="API do ArtriApp — diário de sintomas, exercícios e "
+                  "medicamentos para pacientes com artrite reumatoide.",
    ),
    public=True,
    permission_classes=(permissions.AllowAny,),
