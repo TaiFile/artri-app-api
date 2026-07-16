@@ -1,3 +1,7 @@
+Integrantes: 
+ - João Paulo Morais Rangel - 820827
+ - Vitor Taichi Taira - 823838
+
 # ArtriApp - API (Back-end)
 
 Este repositório contém o código do back-end do aplicativo **ArtriApp**, desenvolvido utilizando Django e Django Rest Framework. A API é responsável pelo gerenciamento de usuários, diário de dor/fadiga/sono, checklist de medicamentos e recomendação de exercícios para o aplicativo mobile.
