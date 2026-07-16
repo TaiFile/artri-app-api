@@ -1,4 +1,4 @@
-from src.models import Exercise, Training
+from src.models import Exercise
 
 
 class ExerciseRepository:
@@ -18,9 +18,3 @@ class ExerciseRepository:
     def filter_by_difficulty(queryset, difficulty):
         # O app envia 'easy'/'medium'/'hard'; o banco guarda 'Easy'/'Medium'/'Hard'.
         return queryset.filter(difficulty__iexact=difficulty)
-
-
-class TrainingRepository:
-    @staticmethod
-    def all():
-        return Training.objects.all()
